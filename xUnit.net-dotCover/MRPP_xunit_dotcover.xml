@@ -54,7 +54,7 @@ param (
     [string] $nugetExe = "%xUnitNet.nugetExe%\tools\nuget.exe",
     [string] $xUnitNuget = "%xUnitNet.nugetSource%",
     [string] $xUnitExe = "%xUnitNet.executable%",
-    [string] $dotCoverExecutable = "%teamcity.tool.dotCover%",
+    [string] $dotCoverExecutable = "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%",
     [boolean] $xunitLegacy = [System.Convert]::ToBoolean("%xUnitNet.executable.legacymode%"),
     [Parameter()]
     [ValidateNotNullOrEmpty()]
@@ -81,7 +81,7 @@ try {
     
     if (-not $xunit) {
         # Try finding xunit under framework specific folder
-        $xunit = Join-Path $workingDir "xunit.runner.console.*\tools\net4*\$xUnitExe" | Resolve-Path
+        $xunit = Join-Path $workingDir "xunit.runner.console.*\tools\net4*\$xUnitExe" | Resolve-Path | Select-Object -Last 1
     }
 
     if (-not $xunit) {
@@ -194,6 +194,7 @@ try {
         }
 
         ## Report coverage results and output build artifacts
+		Write-Output "##teamcity[dotNetCoverage dotcover_home='$dotCoverExecutable']"
         Write-Output "##teamcity[importData type='dotNetCoverage' tool='dotcover' path='$outputFile']"
         Write-Output "##teamcity[publishArtifacts '$settingsFileName']"
         Write-Output "##teamcity[publishArtifacts '$coverageLogFileName']"
